@@ -7,7 +7,7 @@ import CompilerPluginSupport
 let package = Package(
     name: "MacrosPlus",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
         .iOS(.v13),
         .tvOS(.v13),
         .watchOS(.v6),
@@ -41,7 +41,10 @@ let package = Package(
             dependencies: ["Macros"]
         ),
         // A client of the library, which is able to use the macro in its own code.
-        .executableTarget(name: "MacrosPlusClient"),
+        .executableTarget(
+            name: "MacrosPlusClient",
+            dependencies: ["MacrosPlus"]
+        ),
         .testTarget(
             name: "MacrosPlusTests",
             dependencies: [

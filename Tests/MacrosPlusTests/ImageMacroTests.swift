@@ -8,26 +8,32 @@ import XCTest
 import Macros
 
 private let testMacros: [String: Macro.Type] = [
-    "URL": URLMacro.self
+    "Image": ImageMacro.self
 ]
 #endif
 
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
-final class URLMacroTests: XCTestCase {
-    
+
+final class ImageMacroTests: XCTestCase {
+
+    #if canImport(SwiftUI)
     func testUsage() {
-        XCTAssertEqual(#URL("http://localhost"), URL(string: "http://localhost")!)
+        XCTAssertEqual(#Image("17.circle"), Image(systemName: "17.circle"))
     }
-    
-    func testValidURL() throws {
+    #endif
+
+    func testValidSymbol() throws {
 #if canImport(Macros)
         assertMacroExpansion(
         """
-        #URL("https://www.apple.com")
+        #Image("17.circle")
         """,
         expandedSource:
         """
-        URL(string: "https://www.apple.com")!
+        Image(systemName: "17.circle")
         """,
         macros: testMacros
         )
@@ -35,19 +41,19 @@ final class URLMacroTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
 #endif
     }
-    
+
     func testURLStringLiteralError() throws {
 #if canImport(Macros)
         assertMacroExpansion(
         #"""
-        #URL("https://www.apple.com\(Int.random())")
+        #Image("\(variable)")
         """#,
         expandedSource:
         #"""
-        #URL("https://www.apple.com\(Int.random())")
+        #Image("\(variable)")
         """#,
         diagnostics: [
-            DiagnosticSpec(message: "#URL requires a static string literal", line: 1, column: 1)
+            DiagnosticSpec(message: "Static string literal is required", line: 1, column: 1)
         ],
         macros: testMacros
         )
@@ -55,19 +61,19 @@ final class URLMacroTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
 #endif
     }
-    
-    func testMalformedURLError() throws {
+
+    func testInvalidSymbol() throws {
 #if canImport(Macros)
         assertMacroExpansion(
         """
-        #URL("https://www. apple.com")
+        #Image("69.circle")
         """,
         expandedSource:
         """
-        #URL("https://www. apple.com")
+        #Image("69.circle")
         """,
         diagnostics: [
-            DiagnosticSpec(message: #"The input URL is malformed: "https://www. apple.com""#, line: 1, column: 1)
+            DiagnosticSpec(message: #"Invalid SF Symbol"#, line: 1, column: 1)
         ],
         macros: testMacros
         )
